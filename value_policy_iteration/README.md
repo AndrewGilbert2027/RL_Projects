@@ -44,3 +44,4 @@ Both algorithms are widely used in reinforcement learning and serve as the found
 --- 
 
 These algorithms are essential for understanding how agents can learn to make optimal decisions in uncertain environments.
+You can find more information on these algorithms [here](https://www.youtube.com/watch?v=wMAVmLDIvQU&list=PLEhdbSEZZbDaFWPX4gehhwB9vJZJ1DNm8&index=13)
