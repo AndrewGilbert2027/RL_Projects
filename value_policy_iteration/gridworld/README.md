@@ -52,7 +52,8 @@ This project demonstrates the implementation of the **Policy Iteration** algorit
 1. **Install Dependencies**:
    Ensure you have Python 3.x and NumPy installed:
    ```bash
-   pip install numpy
+   pip install -r requirements.txt
+
 
 2. **Run the Policy Iteration Algorithm**: 
     Execute the policy_iteration.py script:
