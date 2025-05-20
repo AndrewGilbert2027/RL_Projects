@@ -35,6 +35,9 @@ class GridWorld:
         self.goal = self.get_goal()
         self.holes = self.get_holes()
 
+    def get_transition_probabilities(self, state, action):
+        return None # Placeholder for transition probabilities
+
     def get_start(self):
         """
         Get the starting position in the grid.
