@@ -1,3 +1,14 @@
+# Value and Policy Iteration Algorithms
+
+Value Iteration and Policy Iteration are two fundamental algorithms in reinforcement learning used to solve Markov Decision Processes (MDPs). These algorithms aim to find an optimal policy that maximizes the cumulative reward for an agent interacting with an environment.
+
+---
+
+## 📘 Value Iteration
+
+Value Iteration is an iterative algorithm that computes the optimal value function for each state. It works by repeatedly updating the value of each state based on the Bellman optimality equation:
+
+V(s) = max_a [ R(s, a) + γ * Σ P(s'|s, a) * V(s') ]
 
 Where:
 - `V(s)` is the value of state `s`.
