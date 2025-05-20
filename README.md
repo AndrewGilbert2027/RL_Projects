@@ -48,7 +48,7 @@ Each algorithm (top-level folder) contains subdirectories for individual environ
 1. **Clone the repository:**
 
    ```bash
-   git clone https://github.com/your-username/reinforcement-learning-project.git
+   git clone https://github.com/AndrewGilbert2027/RL_Projects.git
    cd reinforcement-learning-project
 
 
