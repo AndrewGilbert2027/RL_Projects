@@ -26,7 +26,6 @@ class Action_Change(Enum):
     STAY = (0, 0)
 
 
-
 # Define transitions of where we end up moving to
 # Even though same as Actions we want to maintain readability
 class Transitions(Enum):
@@ -57,13 +56,13 @@ class GridWorld:
         self.map = map
         self.is_slippery = is_slippery
         self.grid = np.array(self.map)
-        self.rows = self.grid.shape()[0]
-        self.cols = self.grid.shape()[1]
+        self.rows = self.grid.shape[0]
+        self.cols = self.grid.shape[1]
         self.start = self.get_start()
         self.goal = self.get_goal()
         self.holes = self.get_holes()
         self.action_space = 5
-        self.state_space = np.sum(self.grid.shape()) # get how many possible states
+        self.state_space = np.sum(self.grid.shape) # get how many possible states
 
     def get_transition_probabilities(self, state, action):
         transition_probabilities = np.zeros(self.state_space) # array representing the action.
@@ -196,10 +195,7 @@ class GridWorld:
                 neighbors.append(new_pos)
         return neighbors
     
+
     def __is_valid(self, pos):
-        return (0 <= pos[0] < self.grid.shape[0] and
-                0 <= pos[1] < self.grid.shape[1] and
-                self.grid[pos] != 'h')
-    
-    def __valid_action(self, state, action):
-        return True
+        return (0 <= pos[1] < self.grid.shape[0] and
+                0 <= pos[0] < self.grid.shape[1])

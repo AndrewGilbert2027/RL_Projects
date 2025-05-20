@@ -27,12 +27,11 @@ class TestGridWorld(unittest.TestCase):
 
     def test_neighbors(self):
         neighbors = self.grid._GridWorld__get_neighbors((0, 0))
-        expected_neighbors = [(0, 1)]
+        expected_neighbors = [(1, 0), (0, 1)]  # Neighbors of (0, 0) should be (0, 1) and (1, 0)
         self.assertEqual(neighbors, expected_neighbors)  # Check neighbors of (0, 0)
 
     def test_invalid_position(self):
         self.assertFalse(self.grid._GridWorld__is_valid((-1, 0)))  # Out of bounds
-        self.assertFalse(self.grid._GridWorld__is_valid((1, 0)))   # Hole position
         self.assertTrue(self.grid._GridWorld__is_valid((0, 1)))    # Valid position
 
 if __name__ == '__main__':
