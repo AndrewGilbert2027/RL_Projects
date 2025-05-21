@@ -58,12 +58,8 @@ This project demonstrates the implementation of the **Policy Iteration** algorit
 2. **Run the Policy Iteration Algorithm**: 
     Execute the policy_iteration.py script:
     ```bash
-    python policy_iteration.py
+    python main.py
 
-3. **Run Tests**:
-    To verify the environemtn setup, run the tests:
-    ```bash
-    python -m unittest test_grid.py
 
 
 ## 📊 Results
