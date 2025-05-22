@@ -1,13 +1,16 @@
 import gymnasium as gym
 import numpy as np
 import matplotlib.pyplot as plt
+import seaborn as sns
+from matplotlib.patches import Patch
+from collections import defaultdict
 from agent import BlackjackAgent
 
 # Initialize the environment
 env = gym.make("Blackjack-v1", natural=True) # natural=True for natural blackjack
 
 # Set the number of episodes
-num_episodes = 100000
+num_episodes = 1000000
 
 # Initialize the number of states and actions
 state_space = env.observation_space
@@ -48,8 +51,9 @@ for episode in range(num_episodes):
     agent.update(episode_data)
 
     # Decay epsilon
-    if episode % 1000 == 0:
-        agent.epsilon = max(0.01, agent.epsilon * 0.9)  # Decay epsilon
+    if episode % 10000 == 0:
+        agent.decay()
+        print(f"Episode {episode}: Epsilon decayed to {agent.epsilon}")
 
 
 
@@ -62,3 +66,88 @@ plt.xlabel('Episode')
 plt.ylabel('Average Reward')
 plt.title('Rolling Average of Rewards')
 plt.savefig('rolling_avg_rewards.png')
+
+
+def create_grids(agent, usable_ace=False):
+    """Create value and policy grid given an agent."""
+    state_value = defaultdict(float)
+    policy = defaultdict(int)
+    for state, action_values in agent.q_values.items():
+        state_value[state] = float(np.max(action_values))
+        policy[state] = int(np.argmax(action_values))
+
+    player_count, dealer_count = np.meshgrid(
+        np.arange(12, 22),  # Player's count
+        np.arange(1, 11),   # Dealer's face-up card
+    )
+
+    value = np.apply_along_axis(
+        lambda obs: state_value.get((obs[0], obs[1], usable_ace), 0),
+        axis=2,
+        arr=np.dstack([player_count, dealer_count]),
+    )
+    value_grid = player_count, dealer_count, value
+
+    policy_grid = np.apply_along_axis(
+        lambda obs: policy.get((obs[0], obs[1], usable_ace), 0),
+        axis=2,
+        arr=np.dstack([player_count, dealer_count]),
+    )
+    return value_grid, policy_grid
+
+
+def create_plots(value_grid, policy_grid, title: str):
+    """Creates a plot using a value and policy grid."""
+    player_count, dealer_count, value = value_grid
+    fig = plt.figure(figsize=plt.figaspect(0.4))
+    fig.suptitle(title, fontsize=16)
+
+    # Plot state values
+    ax1 = fig.add_subplot(1, 2, 1, projection="3d")
+    ax1.plot_surface(
+        player_count,
+        dealer_count,
+        value,
+        rstride=1,
+        cstride=1,
+        cmap="viridis",
+        edgecolor="none",
+    )
+    plt.xticks(range(12, 22), range(12, 22))
+    plt.yticks(range(1, 11), ["A"] + list(range(2, 11)))  # Corrected line
+    ax1.set_title(f"State values: {title}")
+    ax1.set_xlabel("Player sum")
+    ax1.set_ylabel("Dealer showing")
+    ax1.zaxis.set_rotate_label(False)
+    ax1.set_zlabel("Value", fontsize=14, rotation=90)
+    ax1.view_init(20, 220)
+
+    # Plot policy
+    fig.add_subplot(1, 2, 2)
+    ax2 = sns.heatmap(policy_grid, linewidth=0, annot=True, cmap="Accent_r", cbar=False)
+    ax2.set_title(f"Policy: {title}")
+    ax2.set_xlabel("Player sum")
+    ax2.set_ylabel("Dealer showing")
+    ax2.set_xticklabels(range(12, 22))
+    ax2.set_yticklabels(["A"] + list(range(2, 11)), fontsize=12)
+
+    # Add legend
+    legend_elements = [
+        Patch(facecolor="lightgreen", edgecolor="black", label="Hit"),
+        Patch(facecolor="grey", edgecolor="black", label="Stick"),
+    ]
+    ax2.legend(handles=legend_elements, bbox_to_anchor=(1.3, 1))
+    return fig
+
+
+# Visualize state values & policy with usable ace
+value_grid, policy_grid = create_grids(agent, usable_ace=True)
+fig1 = create_plots(value_grid, policy_grid, title="With usable ace")
+plt.savefig("policy_with_usable_ace1.png")
+
+# Visualize state values & policy without usable ace
+value_grid, policy_grid = create_grids(agent, usable_ace=False)
+print(policy_grid)
+print(agent.q_values)
+fig2 = create_plots(value_grid, policy_grid, title="Without usable ace")
+plt.savefig("policy_without_usable_ace1.png")

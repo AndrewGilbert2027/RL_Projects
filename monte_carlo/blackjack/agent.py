@@ -18,9 +18,22 @@ class BlackjackAgent:
         # Keys are state-action pairs, values are Q-values
         self.q_table = {}
 
-        # Initialize the returns dictionary for Monte Carlo updates
-        # Keys are state-action pairs, values are lists of returns
-        self.returns = {}
+        # Initialize a counter for state-action pairs
+        # Keys are state-action pairs, values are counts
+        self.counter = {}
+
+    @property
+    def q_values(self):
+        """
+        Convert the Q-table into a dictionary format compatible with create_grids.
+        :return: A dictionary where keys are states and values are arrays of Q-values for each action.
+        """
+        q_values = {}
+        for (state, action), value in self.q_table.items():
+            if state not in q_values:
+                q_values[state] = np.zeros(self.action_space.n)
+            q_values[state][action] = value
+        return q_values
 
     def get_action_epsilon_greedy(self, state):
         """
@@ -41,14 +54,20 @@ class BlackjackAgent:
         Update the Q-table using Monte Carlo On-Policy Control.
         :param episode_data: A list of (state, action, reward) tuples from the episode.
         """
-        # Calculate the returns for each state-action pair in the episode
         g = 0  # Initialize the return
         for state, action, reward in reversed(episode_data):
             g = reward + self.gamma * g  # Update the return
             if (state, action) not in [(s, a) for s, a, _ in episode_data[:-1]]:
-                # Only update if this is the first occurrence of the state-action pair in the episode
-                if (state, action) not in self.returns:
-                    self.returns[(state, action)] = []
-                self.returns[(state, action)].append(g)
-                # Update the Q-value as the average of the returns
-                self.q_table[(state, action)] = np.mean(self.returns[(state, action)])
+                # Increment the counter for the state-action pair
+                self.counter[(state, action)] = self.counter.get((state, action), 0) + 1
+
+                # Update the Q-value incrementally
+                if (state, action) not in self.q_table:
+                    self.q_table[(state, action)] = 0
+                self.q_table[(state, action)] += (g - self.q_table[(state, action)]) / self.counter[(state, action)]
+
+    def decay(self):
+        """
+        Decay the exploration rate epsilon.
+        """
+        self.epsilon = max(0.1, self.epsilon * 0.99)
