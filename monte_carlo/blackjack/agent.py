@@ -54,11 +54,8 @@ class BlackjackAgent:
             self.q_table[state, action] = (q_value * count + g) / (count + 1)  # Update the Q-value
             self.counter[state, action] += 1  # Increment the count for the state-action pair
 
-            # Debug: Log updates to Q-values
-            print(f"Updated Q[{state}, {action}] to {self.q_table[state, action]} with return {g}")
-
     def decay(self):
         """
         Decay the exploration rate epsilon.
         """
-        self.epsilon = max(0.05, self.epsilon * 0.90)
+        self.epsilon = max(0.05, self.epsilon * 0.99)

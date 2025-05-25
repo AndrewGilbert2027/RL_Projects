@@ -5,10 +5,9 @@ import seaborn as sns
 from matplotlib.patches import Patch
 from collections import defaultdict
 from agent import BlackjackAgent
-from plot_utils import plot_policy_and_values
 
 # Initialize the environment
-env = gym.make("Blackjack-v1", natural=True) # natural=True for natural blackjack
+env = gym.make("Blackjack-v1", natural=True, sab=False) # natural=True for natural blackjack
 
 # Set the number of episodes
 num_episodes = 1000000
@@ -18,7 +17,7 @@ state_space = 32 * 11 * 2  # Flattened state space (Player sum, Dealer showing, 
 action_space = 2  # Number of actions (Hit, Stick)
 
 # Initialize the agent
-epsilon = 0.9 # Exploration rate
+epsilon = 1.0 # Exploration rate
 gamma = 1.0 # Discount factor (For Blackjack, we can set it to 1)
 agent = BlackjackAgent(state_space=state_space, action_space=action_space, epsilon=epsilon, gamma=gamma)
 
