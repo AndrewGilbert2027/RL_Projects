@@ -14,26 +14,19 @@ class BlackjackAgent:
         self.epsilon = epsilon
         self.gamma = gamma
 
-        # Initialize the Q-table as a dictionary
-        # Keys are state-action pairs, values are Q-values
-        self.q_table = {}
+        # Initialize the Q-table as a numpy array
+        self.q_table = np.zeros((state_space, action_space))
 
-        # Initialize a counter for state-action pairs
-        # Keys are state-action pairs, values are counts
-        self.counter = {}
+        # Initialize a counter for state-action pairs as a numpy array
+        self.counter = np.zeros((state_space, action_space), dtype=int)
 
     @property
     def q_values(self):
         """
-        Convert the Q-table into a dictionary format compatible with create_grids.
-        :return: A dictionary where keys are states and values are arrays of Q-values for each action.
+        Convert the Q-table into a dictionary-like format.
+        :return: A numpy array of Q-values.
         """
-        q_values = {}
-        for (state, action), value in self.q_table.items():
-            if state not in q_values:
-                q_values[state] = np.zeros(self.action_space.n)
-            q_values[state][action] = value
-        return q_values
+        return self.q_table
 
     def get_action_epsilon_greedy(self, state):
         """
@@ -43,11 +36,10 @@ class BlackjackAgent:
         """
         if np.random.rand() < self.epsilon:
             # Explore: choose a random action
-            return self.action_space.sample()
+            return np.random.choice(self.action_space)
         else:
             # Exploit: choose the action with the highest Q-value
-            q_values = [self.q_table.get((state, action), 0) for action in range(self.action_space.n)]
-            return np.argmax(q_values)
+            return np.argmax(self.q_table[state])
 
     def update(self, episode_data):
         """
@@ -57,17 +49,16 @@ class BlackjackAgent:
         g = 0  # Initialize the return
         for state, action, reward in reversed(episode_data):
             g = reward + self.gamma * g  # Update the return
-            if (state, action) not in [(s, a) for s, a, _ in episode_data[:-1]]:
-                # Increment the counter for the state-action pair
-                self.counter[(state, action)] = self.counter.get((state, action), 0) + 1
+            count = self.counter[state, action]  # Get the count for the state-action pair
+            q_value = self.q_table[state, action]  # Get the current Q-value
+            self.q_table[state, action] = (q_value * count + g) / (count + 1)  # Update the Q-value
+            self.counter[state, action] += 1  # Increment the count for the state-action pair
 
-                # Update the Q-value incrementally
-                if (state, action) not in self.q_table:
-                    self.q_table[(state, action)] = 0
-                self.q_table[(state, action)] += (g - self.q_table[(state, action)]) / self.counter[(state, action)]
+            # Debug: Log updates to Q-values
+            print(f"Updated Q[{state}, {action}] to {self.q_table[state, action]} with return {g}")
 
     def decay(self):
         """
         Decay the exploration rate epsilon.
         """
-        self.epsilon = max(0.1, self.epsilon * 0.99)
+        self.epsilon = max(0.05, self.epsilon * 0.90)
