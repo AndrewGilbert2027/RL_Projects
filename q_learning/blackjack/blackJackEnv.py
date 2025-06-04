@@ -82,7 +82,7 @@ class BlackJackEnv():
         for card in self.player_hand:
             if card == 1:
                 self.player_sum += 1
-            if card > 10:
+            elif card > 10:
                 self.player_sum += 10
             else:
                 self.player_sum += card
@@ -96,7 +96,7 @@ class BlackJackEnv():
         for card in self.dealer_hand:
             if card == 1:
                 self.dealer_sum += 1
-            if card > 10:
+            elif card > 10:
                 self.dealer_sum += 10
             else:
                 self.dealer_sum += card
@@ -127,11 +127,6 @@ class BlackJackEnv():
         :return: A tuple containing the next state, reward, done flag, and additional info.
         """
         if action == 0:
-            # Player chooses to stick
-            self.dealer_deals()
-            reward = self.calculate_reward()
-            done = True
-        elif action == 1:
             # Player chooses to hit
             self.player_hand.append(self.draw_card())
             self.update_sums()
@@ -141,6 +136,11 @@ class BlackJackEnv():
             else:
                 reward = 0
                 done = False
+        elif action == 1:
+            # Player chooses to stand
+            self.dealer_deals()
+            reward = self.calculate_reward()
+            done = True
         
         else:
             raise ValueError("Invalid action. Action must be 0 (hit) or 1 (stand).")
